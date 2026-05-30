@@ -1,3 +1,30 @@
+Metadata-Version: 2.4
+Name: transduced_lm
+Version: 1.0.0
+Summary: Transducing Language Models: deriving new language models from deterministic string-to-string transformations represented as finite-state transducers.
+Requires-Python: >=3.10
+Description-Content-Type: text/markdown
+Requires-Dist: datasets==3.3.1
+Requires-Dist: graphviz==0.20.3
+Requires-Dist: matplotlib==3.10.3
+Requires-Dist: numpy==2.2.6
+Requires-Dist: pandas==2.2.3
+Requires-Dist: pynini==2.1.7
+Requires-Dist: pytest==8.3.4
+Requires-Dist: recordclass==0.23.1
+Requires-Dist: scipy==1.15.3
+Requires-Dist: tqdm==4.67.1
+Requires-Dist: torch==2.7.1
+Requires-Dist: transformers==4.57.1
+Requires-Dist: genlm-bytes==0.2.0
+Requires-Dist: genlm-backend @ git+https://github.com/genlm/genlm-backend@44ddbc231c3ae6df592c45c8f0836bcc526d87fb
+Requires-Dist: async-lru==2.0.5
+Requires-Dist: cachetools==6.2.1
+Requires-Dist: pydot==4.0.1
+Requires-Dist: pympler==1.1
+Provides-Extra: vllm
+Requires-Dist: vllm==0.10.0; extra == "vllm"
+
 # Transducing Language Models
 
 Official code for the paper **[Transducing Language Models](https://openreview.net/forum?id=qOyF214xmg)** (ICLR 2026).
@@ -104,18 +131,14 @@ async def main():
 asyncio.run(main())
 ```
 
-To use **your own** transformation you need a `VectorizedFST`. Build the
-transducer either directly in
+To use **your own** transformation, build a transducer with
 [`pynini`](https://www.openfst.org/twiki/bin/view/GRM/Pynini) (symbols are the
-string forms of integer ids; epsilon is label `0`), or with the bundled
-`FST` class in
-[`transduced_lm.benchmark.ptb.fst`](src/transduced_lm/benchmark/ptb/fst.py) and
-convert it to pynini with `transduction_fst_to_pynini` from
-[`transduced_lm.benchmark.ptb.fst_converter`](src/transduced_lm/benchmark/ptb/fst_converter.py).
-Then wrap it in `VectorizedFST`, call `compute_universal_states()`, and pass it
-to `TransducedLM` with any source LM exposing `async logp_next_for(ctx) -> ndarray`.
-The three transducers from the paper are constructed in
-`src/transduced_lm/benchmark/fst_loaders.py` and `ptb_fst_builder.py`.
+string forms of integer ids; epsilon is label `0`), wrap it in `VectorizedFST`,
+call `compute_universal_states()`, and pass it to `TransducedLM` with any source
+LM exposing `async logp_next_for(ctx) -> ndarray`. The three transducers from the
+paper are constructed in `src/transduced_lm/benchmark/fst_loaders.py` and
+`ptb_fst_builder.py`, and `src/transduced_lm/code_overview/` documents how each
+algorithm in the paper maps onto the code.
 
 ## Installation
 
@@ -134,16 +157,7 @@ GPU-accelerated inference with vLLM (used for all paper experiments):
 pip install -e ".[vllm]"
 ```
 
-> The experiment scripts require a CUDA GPU.
-
-To verify the install end-to-end — package import, vLLM, HuggingFace model
-download/load, and dataset download — run the setup smoke test (loads each
-transducer + model and scores a few symbols, using the same CLI as the
-experiment scripts below):
-
-```bash
-bash scripts/smoke_test.sh   # gpt2-large + vesteinn/gpt2-dna; no HF login needed
-```
+> The experiment scripts require a CUDA GPU; the unit tests run on CPU.
 
 ## Transducers
 
@@ -181,6 +195,13 @@ mapping from scripts to paper tables/figures and per-experiment parameters. The
 scripts used for the paper, including the Phi-4 runs. Scripts use the active
 Python environment; set `CONDA_ENV=<name>` to have them activate a named conda
 environment automatically.
+
+## Running tests
+
+```bash
+bash scripts/run_tests.sh          # fast unit suite (CPU)
+bash scripts/run_tests.sh -m slow  # GPU/model integration test
+```
 
 ## Citation
 

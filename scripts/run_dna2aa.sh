@@ -1,0 +1,11 @@
+python -B -m transduced_lm.benchmark.run \
+  --transducer hf_dna2aa  \
+  --model vesteinn/gpt2-dna \
+  --paragraphs 1 \
+  --prune-threshold 0.001 \
+  --max-bytes 850 \
+  --preset old-dna2aa \
+  --use-vllm \
+  --dtype bf16 \
+  --max-candidates 5000 \
+  --output results/dna_ptb_ported_0p001.pkl

@@ -1,0 +1,45 @@
+[project]
+name = "transduced_lm"
+version = "1.0.0"
+description = "Transducing Language Models: deriving new language models from deterministic string-to-string transformations represented as finite-state transducers."
+readme = "README.md"
+requires-python = ">=3.10"
+
+
+# Versions are pinned to the configuration used for the paper experiments.
+# The genlm-backend git pin matches the exact backend the experiments were run
+# against; genlm-bytes pulls torch/transformers transitively, but we pin them
+# explicitly for reproducibility.
+dependencies = [
+  "datasets==3.3.1",
+  "graphviz==0.20.3",
+  "matplotlib==3.10.3",
+  "numpy==2.2.6",
+  "pandas==2.2.3",
+  "pynini==2.1.7",
+  "recordclass==0.23.1",
+  "scipy==1.15.3",
+  "tqdm==4.67.1",
+  "torch==2.7.1",
+  "transformers==4.57.1",
+  "genlm-bytes==0.2.0",
+  "genlm-backend @ git+https://github.com/genlm/genlm-backend@44ddbc231c3ae6df592c45c8f0836bcc526d87fb",
+  "async-lru==2.0.5",
+  "cachetools==6.2.1",
+  "pydot==4.0.1",
+  "pympler==1.1",
+]
+
+[project.optional-dependencies]
+# GPU-accelerated inference backend used for the paper experiments.
+vllm = ["vllm==0.10.0"]
+
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+package-dir = { "" = "src" }
+# Single top-level package: transduced_lm (the reference implementation is the
+# transduced_lm.transduction subpackage).
+packages = { find = { where = ["src"] } }
